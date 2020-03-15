@@ -3,9 +3,10 @@ import requests
 import json
 from names import drow_names, aelfir_nouns, connectors
 from random import randrange, choice
-from secrets import secret_dict, maskmaker_url
+from secrets import secret_dict, maskmaker_url, disc_id
 
 client = discord.Client()
+client.hedro_lock = False
 
 @client.event
 async def on_ready():
@@ -15,6 +16,14 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
+    if client.hedro_lock and str(message.author.id) != str(disc_id):
+        return
+    if message.content.startswith("!lock"):
+        client.hedro_lock = True
+        await client.send_message(message.channel, "```The Hedral Lock Is Sealed```")
+    elif message.content.startswith("!unlock"):
+        client.hedro_lock = False
+        await client.send_message(message.channel, "```The Hedral Lock Slips Open```")
     if message.content.startswith('!r'):
         try:
             dice_to_roll = int(message.content[2])
@@ -59,7 +68,6 @@ async def on_message(message):
                 name_list = [choice(aelfir_nouns) + " " + choice(connectors) + " " + choice(aelfir_nouns) for x in range(20+number)]
                 if "--obnoxious" in split_message:
                     name_list = [name + " " + choice(connectors) + " " + choice(aelfir_nouns) for name in name_list]
-                    print(name_list)
             else:
                 name_list = drow_names
             response = requests.post(maskmaker_url, json={"number": number, "names": name_list, "attributes": ["Pride", "Intellect", "Weirdness", "Strength", "Paranoia"]}).text
