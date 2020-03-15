@@ -1,8 +1,8 @@
 import discord
 import requests
 import json
-from names import drow_names
-from random import randrange
+from names import drow_names, aelfir_nouns, connectors
+from random import randrange, choice
 from secrets import secret_dict, maskmaker_url
 
 client = discord.Client()
@@ -56,7 +56,10 @@ async def on_message(message):
             if species == 'Drow':
                 name_list = drow_names
             elif species == 'Aelfir':
-                name_list = drow_names
+                name_list = [choice(aelfir_nouns) + " " + choice(connectors) + " " + choice(aelfir_nouns) for x in range(20+number)]
+                if "--obnoxious" in split_message:
+                    name_list = [name + " " + choice(connectors) + " " + choice(aelfir_nouns) for name in name_list]
+                    print(name_list)
             else:
                 name_list = drow_names
             response = requests.post(maskmaker_url, json={"number": number, "names": name_list, "attributes": ["Pride", "Intellect", "Weirdness", "Strength", "Paranoia"]}).text
