@@ -20,13 +20,29 @@ async def on_message(message):
         return
     if message.content.startswith("!lock"):
         client.hedro_lock = True
-        await client.send_message(message.channel, "```The Hedral Lock Is Sealed```")
+        await message.channel.send("```The Hedral Lock Is Sealed```")
     elif message.content.startswith("!unlock"):
         client.hedro_lock = False
-        await client.send_message(message.channel, "```The Hedral Lock Slips Open```")
+        await message.channel.send("```The Hedral Lock Slips Open```")
+    if message.content.startswith("!d"):
+        try:
+            split_message = message.content.split(" ")
+            dice_notation = split_message[1].split('d')
+            num_dice = int(dice_notation[0])
+            if num_dice > 20:
+                raise ValueError("No, max 20 dice please")
+            type_dice = int(dice_notation[1])
+            if type_dice > 10000:
+                raise ValueError("Max dice size is 10,000. What the hell do you need dice this big for")
+            rolls = [randrange(1, type_dice) for die in range(num_dice)]
+            chat_message = "```Rolled {}, result: {}\n".format(split_message[1], sum(rolls))
+            chat_message += "Rolls: {}\n```".format(rolls)
+            await message.channel.send(chat_message)
+        except Exception as e:
+            await message.channel.send("Floor dice don't count. (There was an exception: {})".format(e))
     if message.content.startswith('!r'):
         try:
-            dice_to_roll = int(message.content[2])
+            dice_to_roll = int("".join(message.content[2:]))
             rolls = [randrange(1, 11) for die in range(dice_to_roll)]
             best_roll = max(rolls)
             
@@ -46,9 +62,9 @@ async def on_message(message):
             chat_message += "Result: {}\n".format(best_roll)
             chat_message += "{}\n```".format(result)
 
-            await client.send_message(message.channel, chat_message)
+            await message.channel.send(chat_message)
         except Exception as e:
-            await client.send_message(message.channel, "Floor dice don't count. (There was an exception: {})".format(e))
+            await message.channel.send("Floor dice don't count. (There was an exception: {})".format(e))
     if message.content.startswith('!g'):
         try:
             split_message = message.content.split(" ")
@@ -81,7 +97,7 @@ async def on_message(message):
                     chat_message += "Traits: {}\n".format(character['traits'])
                     chat_message += "Attributes: {}\n".format(character['attribute'])
             chat_message += "```"
-            await client.send_message(message.channel, chat_message)
+            await message.channel.send(chat_message)
         except Exception as e:
-            await client.send_message(message.channel, "Uhh... his name is.... uhhhh.... Dave. The Elf. (There was an exception: {})".format(e))
+            await message.channel.send("Uhh... his name is.... uhhhh.... Dave. The Elf. (There was an exception: {})".format(e))
 client.run(secret_dict['client_key'])
