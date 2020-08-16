@@ -16,14 +16,19 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
-    if client.hedro_lock and str(message.author.id) != str(disc_id):
-        return
-    if message.content.startswith("!lock"):
+    
+    is_admin =  message.channel.permissions_for(message.author).administrator
+
+    if client.hedro_lock and not is_admin:
+        return 
+
+    if message.content.startswith("!lock") and is_admin:
         client.hedro_lock = True
         await message.channel.send("```The Hedral Lock Is Sealed```")
-    elif message.content.startswith("!unlock"):
+    elif message.content.startswith("!unlock") and is_admin:
         client.hedro_lock = False
         await message.channel.send("```The Hedral Lock Slips Open```")
+
     if message.content.startswith("!d"):
         try:
             split_message = message.content.split(" ")
@@ -100,4 +105,5 @@ async def on_message(message):
             await message.channel.send(chat_message)
         except Exception as e:
             await message.channel.send("Uhh... his name is.... uhhhh.... Dave. The Elf. (There was an exception: {})".format(e))
+
 client.run(secret_dict['client_key'])
